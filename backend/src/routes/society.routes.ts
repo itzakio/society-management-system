@@ -10,6 +10,7 @@ import {
 
 import {
   createSocietyController,
+  createSocietyAdminController,
 } from "../controllers/society.controller.js";
 
 const router = Router();
@@ -19,6 +20,13 @@ router.post(
   authenticate,
   authorizeRoles("super_admin"),
   createSocietyController
+);
+
+router.post(
+  "/:societyId/admin",
+  authenticate,
+  authorizeRoles("super_admin"),
+  createSocietyAdminController
 );
 
 export default router;

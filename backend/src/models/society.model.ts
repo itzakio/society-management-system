@@ -31,6 +31,8 @@ const societySchema = new Schema<ISociety>(
       type: String,
       trim: true,
       lowercase: true,
+      unique: true,
+      sparse: true,
     },
 
     status: {
@@ -41,12 +43,9 @@ const societySchema = new Schema<ISociety>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-const Society = mongoose.model<ISociety>(
-  "Society",
-  societySchema
-);
+const Society = mongoose.model<ISociety>("Society", societySchema);
 
 export default Society;
