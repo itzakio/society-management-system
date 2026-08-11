@@ -10,7 +10,7 @@ interface CreateSocietyInput {
 }
 
 interface CreateSocietyAdminInput {
-  societyId: string;
+  societyId: string ;
   name: string;
   email: string;
   password: string;
