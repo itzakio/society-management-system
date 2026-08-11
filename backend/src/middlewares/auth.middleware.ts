@@ -1,13 +1,6 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import { verifyAccessToken } from "../utils/jwt.js";
-
-export interface AuthRequest extends Request {
-  user?: {
-    userId: string;
-    role: string;
-    societyId: string | null;
-  };
-}
+import { AuthRequest } from "../types/auth.types.js";
 
 export const authenticate = (
   req: AuthRequest,
