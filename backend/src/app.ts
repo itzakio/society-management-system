@@ -1,8 +1,9 @@
-﻿import express from "express";
+import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes.js";
 import societyRoutes from "./routes/society.routes.js";
+import buildingRoutes from "./routes/building.routes.js";
 
 const app = express();
 
@@ -26,5 +27,6 @@ app.get("/", (_req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/societies", societyRoutes);
+app.use("/api/buildings", buildingRoutes);
 
 export default app;
