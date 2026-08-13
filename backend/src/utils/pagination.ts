@@ -15,35 +15,21 @@ export interface PaginationMeta {
   hasPreviousPage: boolean;
 }
 
-export const getPagination = (
-  req: Request
-): PaginationOptions => {
-  const page = Math.max(
-    Number(req.query.page) || 1,
-    1
-  );
-
-  const limit = Math.min(
-    Math.max(
-      Number(req.query.limit) || 10,
-      1
-    ),
-    100
-  );
-
-  const skip = (page - 1) * limit;
+export const getPagination = (req: Request): PaginationOptions => {
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
 
   return {
     page,
     limit,
-    skip,
+    skip: (page - 1) * limit,
   };
 };
 
 export const getPaginationMeta = (
   total: number,
   page: number,
-  limit: number
+  limit: number,
 ): PaginationMeta => {
   const totalPages = Math.ceil(total / limit);
 

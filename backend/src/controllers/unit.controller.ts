@@ -11,10 +11,7 @@ import {
 
 import { getPagination } from "../utils/pagination.js";
 
-export const createUnitController = async (
-  req: AuthRequest,
-  res: Response
-) => {
+export const createUnitController = async (req: AuthRequest, res: Response) => {
   try {
     if (!req.tenantId) {
       return res.status(403).json({
@@ -23,36 +20,8 @@ export const createUnitController = async (
       });
     }
 
-    const {
-      unitNumber,
-      buildingId,
-      floor,
-      type,
-      area,
-      bedrooms,
-      bathrooms,
-    } = req.body;
-
-    if (
-      !unitNumber ||
-      !buildingId ||
-      floor === undefined
-    ) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "unitNumber, buildingId and floor are required",
-      });
-    }
-
     const unit = await createUnit({
-      unitNumber,
-      buildingId,
-      floor,
-      type,
-      area,
-      bedrooms,
-      bathrooms,
+      ...req.body,
       societyId: req.tenantId,
     });
 
@@ -63,9 +32,7 @@ export const createUnitController = async (
     });
   } catch (error) {
     const message =
-      error instanceof Error
-        ? error.message
-        : "Failed to create unit";
+      error instanceof Error ? error.message : "Failed to create unit";
 
     return res.status(400).json({
       success: false,
@@ -73,11 +40,7 @@ export const createUnitController = async (
     });
   }
 };
-
-export const getUnitsController = async (
-  req: AuthRequest,
-  res: Response
-) => {
+export const getUnitsController = async (req: AuthRequest, res: Response) => {
   try {
     if (!req.tenantId) {
       return res.status(403).json({
@@ -93,11 +56,7 @@ export const getUnitsController = async (
         ? req.query.buildingId
         : undefined;
 
-    const result = await getUnits(
-      req.tenantId,
-      buildingId,
-      pagination
-    );
+    const result = await getUnits(req.tenantId, buildingId, pagination);
 
     return res.status(200).json({
       success: true,
@@ -115,7 +74,7 @@ export const getUnitsController = async (
 
 export const getUnitByIdController = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ) => {
   try {
     if (!req.tenantId) {
@@ -134,10 +93,7 @@ export const getUnitByIdController = async (
       });
     }
 
-    const unit = await getUnitById(
-      unitId,
-      req.tenantId
-    );
+    const unit = await getUnitById(unitId, req.tenantId);
 
     if (!unit) {
       return res.status(404).json({
@@ -160,10 +116,7 @@ export const getUnitByIdController = async (
   }
 };
 
-export const updateUnitController = async (
-  req: AuthRequest,
-  res: Response
-) => {
+export const updateUnitController = async (req: AuthRequest, res: Response) => {
   try {
     if (!req.tenantId) {
       return res.status(403).json({
@@ -181,11 +134,7 @@ export const updateUnitController = async (
       });
     }
 
-    const unit = await updateUnit(
-      unitId,
-      req.tenantId,
-      req.body
-    );
+    const unit = await updateUnit(unitId, req.tenantId, req.body);
 
     if (!unit) {
       return res.status(404).json({
@@ -201,9 +150,7 @@ export const updateUnitController = async (
     });
   } catch (error) {
     const message =
-      error instanceof Error
-        ? error.message
-        : "Failed to update unit";
+      error instanceof Error ? error.message : "Failed to update unit";
 
     return res.status(400).json({
       success: false,
@@ -212,10 +159,7 @@ export const updateUnitController = async (
   }
 };
 
-export const deleteUnitController = async (
-  req: AuthRequest,
-  res: Response
-) => {
+export const deleteUnitController = async (req: AuthRequest, res: Response) => {
   try {
     if (!req.tenantId) {
       return res.status(403).json({
@@ -233,10 +177,7 @@ export const deleteUnitController = async (
       });
     }
 
-    const unit = await deleteUnit(
-      unitId,
-      req.tenantId
-    );
+    const unit = await deleteUnit(unitId, req.tenantId);
 
     if (!unit) {
       return res.status(404).json({

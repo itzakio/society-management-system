@@ -1,16 +1,10 @@
 import { Router } from "express";
 
-import {
-  authenticate,
-} from "../middlewares/auth.middleware.js";
+import { authenticate } from "../middlewares/auth.middleware.js";
 
-import {
-  requireTenant,
-} from "../middlewares/tenant.middleware.js";
+import { requireTenant } from "../middlewares/tenant.middleware.js";
 
-import {
-  authorizeRoles,
-} from "../middlewares/role.middleware.js";
+import { authorizeRoles } from "../middlewares/role.middleware.js";
 
 import {
   createUnitController,
@@ -19,6 +13,8 @@ import {
   updateUnitController,
   deleteUnitController,
 } from "../controllers/unit.controller.js";
+import { validate } from "../middlewares/validate.middleware.js";
+import { getUnitsSchema } from "../validations/unit.validation.js";
 
 const router = Router();
 
@@ -27,7 +23,7 @@ router.post(
   authenticate,
   requireTenant,
   authorizeRoles("society_admin"),
-  createUnitController
+  createUnitController,
 );
 
 router.get(
@@ -35,15 +31,15 @@ router.get(
   authenticate,
   requireTenant,
   authorizeRoles("society_admin"),
-  getUnitsController
+  validate(getUnitsSchema),
+  getUnitsController,
 );
-
 router.get(
   "/:unitId",
   authenticate,
   requireTenant,
   authorizeRoles("society_admin"),
-  getUnitByIdController
+  getUnitByIdController,
 );
 
 router.patch(
@@ -51,7 +47,7 @@ router.patch(
   authenticate,
   requireTenant,
   authorizeRoles("society_admin"),
-  updateUnitController
+  updateUnitController,
 );
 
 router.delete(
@@ -59,7 +55,7 @@ router.delete(
   authenticate,
   requireTenant,
   authorizeRoles("society_admin"),
-  deleteUnitController
+  deleteUnitController,
 );
 
 export default router;

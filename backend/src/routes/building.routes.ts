@@ -1,16 +1,10 @@
 import { Router } from "express";
 
-import {
-  authenticate,
-} from "../middlewares/auth.middleware.js";
+import { authenticate } from "../middlewares/auth.middleware.js";
 
-import {
-  requireTenant,
-} from "../middlewares/tenant.middleware.js";
+import { requireTenant } from "../middlewares/tenant.middleware.js";
 
-import {
-  authorizeRoles,
-} from "../middlewares/role.middleware.js";
+import { authorizeRoles } from "../middlewares/role.middleware.js";
 
 import {
   createBuildingController,
@@ -19,6 +13,13 @@ import {
   updateBuildingController,
   deleteBuildingController,
 } from "../controllers/building.controller.js";
+import { validate } from "../middlewares/validate.middleware.js";
+import {
+  buildingIdSchema,
+  createBuildingSchema,
+  updateBuildingSchema,
+  getBuildingsSchema,
+} from "../validations/building.validation.js";
 
 const router = Router();
 
@@ -27,7 +28,8 @@ router.post(
   authenticate,
   requireTenant,
   authorizeRoles("society_admin"),
-  createBuildingController
+  validate(createBuildingSchema),
+  createBuildingController,
 );
 
 router.get(
@@ -35,7 +37,8 @@ router.get(
   authenticate,
   requireTenant,
   authorizeRoles("society_admin"),
-  getBuildingsController
+  validate(getBuildingsSchema),
+  getBuildingsController,
 );
 
 router.get(
@@ -43,7 +46,8 @@ router.get(
   authenticate,
   requireTenant,
   authorizeRoles("society_admin"),
-  getBuildingByIdController
+  validate(buildingIdSchema),
+  getBuildingByIdController,
 );
 
 router.patch(
@@ -51,7 +55,8 @@ router.patch(
   authenticate,
   requireTenant,
   authorizeRoles("society_admin"),
-  updateBuildingController
+  validate(updateBuildingSchema),
+  updateBuildingController,
 );
 
 router.delete(
@@ -59,7 +64,8 @@ router.delete(
   authenticate,
   requireTenant,
   authorizeRoles("society_admin"),
-  deleteBuildingController
+  validate(buildingIdSchema),
+  deleteBuildingController,
 );
 
 export default router;
