@@ -11,6 +11,7 @@ import {
 } from "../utils/invitation.js";
 import Invitation from "../models/invitation.model.js";
 import { sendResidentInvitationEmail } from "./email.service.js";
+import { PaginationOptions, getPaginationMeta } from "../utils/pagination.js";
 
 interface CreateResidentInput {
   name: string;
@@ -142,4 +143,58 @@ export const createResident = async (
 
     throw error;
   }
+};
+
+export const getResidents = async (
+  societyId: string,
+  pagination: PaginationOptions,
+) => {
+  const { page, limit, skip } = pagination;
+
+  const filter = {
+    societyId,
+  };
+
+  const [residents, total] = await Promise.all([
+    Resident.find(filter)
+      .populate("userId", "name email role isActive")
+      .sort({
+        createdAt: -1,
+      })
+      .skip(skip)
+      .limit(limit),
+
+    Resident.countDocuments(filter),
+  ]);
+
+  return {
+    residents,
+    pagination: getPaginationMeta(total, page, limit),
+  };
+};
+
+export const getResidentById = async (
+  residentId: string | string[] | undefined,
+  societyId: string,
+) => {
+  const resident = await Resident.findOne({
+    _id: residentId,
+    societyId,
+  }).populate("userId", "name email role isActive");
+
+  return resident;
+};
+
+export const getResidentMemberships = async (
+  residentId: string | string[] | undefined,
+  societyId: string,
+) => {
+  return ResidentMembership.find({
+    residentId,
+    societyId,
+  })
+    .populate("unitId", "unitNumber floorNumber type status")
+    .sort({
+      createdAt: -1,
+    });
 };
