@@ -10,6 +10,8 @@ import {
   GetMeResponse,
   UploadAttachmentResponse,
   ChangePasswordResponse,
+  AcceptInvitationRequest,
+  AcceptInvitationResponse,
 } from "@/types/auth.types";
 import { baseApi } from "../baseApi";
 
@@ -25,7 +27,18 @@ export const authApi = baseApi.injectEndpoints({
     }),
     signIn: builder.mutation<LoginResponse, LoginRequest>({
       query: (body) => ({
-        url: "/auth/signin",
+        url: "/auth/login",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Auth"],
+    }),
+    acceptInvitation: builder.mutation<
+      AcceptInvitationResponse,
+      AcceptInvitationRequest
+    >({
+      query: (body) => ({
+        url: "/auth/accept-invitation",
         method: "POST",
         body,
       }),
@@ -119,4 +132,5 @@ export const {
   useUpdateProfileMutation,
   useUploadAttachmentMutation,
   useChangePasswordMutation,
+  useAcceptInvitationMutation,
 } = authApi;
