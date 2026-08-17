@@ -31,6 +31,29 @@ interface CreateResidentInput {
   emergencyContactName?: string;
   emergencyContactPhone?: string;
 }
+
+interface UpdateResidentInput {
+  name?: string;
+  phone?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+}
+
+interface UpdateResidentMembershipInput {
+  unitId?: string;
+
+  relationship?:
+    | "owner"
+    | "tenant"
+    | "family_member";
+
+  isResident?: boolean;
+
+  ownershipPercentage?: number;
+
+  startDate?: Date;
+}
+
 export const createResident = async (
   societyId: string,
   data: CreateResidentInput,
@@ -198,3 +221,267 @@ export const getResidentMemberships = async (
       createdAt: -1,
     });
 };
+
+export const updateResident = async (
+  residentId: string,
+  societyId: string,
+  data: UpdateResidentInput
+) => {
+  const resident = await Resident.findOne({
+    _id: residentId,
+    societyId,
+  });
+
+  if (!resident) {
+    throw new Error("Resident not found");
+  }
+
+  const user = await User.findOne({
+    _id: resident.userId,
+    societyId,
+  });
+
+  if (!user) {
+    throw new Error("User account not found");
+  }
+
+  if (data.name !== undefined) {
+    user.name = data.name;
+  }
+
+  if (data.phone !== undefined) {
+    resident.phone = data.phone;
+  }
+
+  if (
+    data.emergencyContactName !== undefined
+  ) {
+    resident.emergencyContactName =
+      data.emergencyContactName;
+  }
+
+  if (
+    data.emergencyContactPhone !== undefined
+  ) {
+    resident.emergencyContactPhone =
+      data.emergencyContactPhone;
+  }
+
+  await user.save();
+  await resident.save();
+
+  return {
+    resident,
+    user,
+  };
+};
+
+export const updateResidentMembership =
+  async (
+    residentId: string | string[] | undefined,
+    societyId: string,
+    data: UpdateResidentMembershipInput
+  ) => {
+    const resident =
+      await Resident.findOne({
+        _id: residentId,
+        societyId,
+      });
+
+    if (!resident) {
+      throw new Error(
+        "Resident not found"
+      );
+    }
+
+    const membership =
+      await ResidentMembership.findOne({
+        residentId,
+        societyId,
+        status: "active",
+      });
+
+    if (!membership) {
+      throw new Error(
+        "Active membership not found"
+      );
+    }
+
+    /*
+     * Check if unit is changing
+     */
+    const unitChanged =
+      data.unitId !== undefined &&
+      data.unitId !==
+        membership.unitId.toString();
+
+    if (unitChanged) {
+      const newUnit = await Unit.findOne({
+        _id: data.unitId,
+        societyId,
+        status: {
+          $ne: "inactive",
+        },
+      });
+
+      if (!newUnit) {
+        throw new Error(
+          "New unit not found in this society"
+        );
+      }
+
+      /*
+       * Close old membership
+       */
+      membership.status =
+        "inactive";
+
+      membership.endDate =
+        new Date();
+
+      await membership.save();
+
+      /*
+       * Create new membership
+       */
+      const newMembership =
+        await ResidentMembership.create({
+          residentId:
+            resident._id,
+
+          societyId:
+            resident.societyId,
+
+          unitId: newUnit._id,
+
+          relationship:
+            data.relationship ??
+            membership.relationship,
+
+          isResident:
+            data.isResident ??
+            membership.isResident,
+
+          ownershipPercentage:
+            data.ownershipPercentage ??
+            membership.ownershipPercentage,
+
+          startDate:
+            data.startDate ??
+            new Date(),
+
+          status: "active",
+        });
+
+      return newMembership;
+    }
+
+    /*
+     * Same unit → update existing membership
+     */
+    if (
+      data.relationship !== undefined
+    ) {
+      membership.relationship =
+        data.relationship;
+    }
+
+    if (
+      data.isResident !== undefined
+    ) {
+      membership.isResident =
+        data.isResident;
+    }
+
+    if (
+      data.ownershipPercentage !==
+      undefined
+    ) {
+      membership.ownershipPercentage =
+        data.ownershipPercentage;
+    }
+
+    if (
+      data.startDate !== undefined
+    ) {
+      membership.startDate =
+        data.startDate;
+    }
+
+    await membership.save();
+
+    return membership;
+  };
+
+export const deactivateResident =
+  async (
+    residentId: string,
+    societyId: string
+  ) => {
+    const resident =
+      await Resident.findOne({
+        _id: residentId,
+        societyId,
+      });
+
+    if (!resident) {
+      throw new Error(
+        "Resident not found"
+      );
+    }
+
+    if (
+      resident.status === "inactive"
+    ) {
+      throw new Error(
+        "Resident is already inactive"
+      );
+    }
+
+    const user = await User.findOne({
+      _id: resident.userId,
+      societyId,
+    });
+
+    if (!user) {
+      throw new Error(
+        "User account not found"
+      );
+    }
+
+    /*
+     * Deactivate resident
+     */
+    resident.status = "inactive";
+
+    await resident.save();
+
+    /*
+     * Disable login
+     */
+    user.isActive = false;
+
+    await user.save();
+
+    /*
+     * Close active memberships
+     */
+    await ResidentMembership.updateMany(
+      {
+        residentId: resident._id,
+        societyId,
+        status: "active",
+      },
+      {
+        $set: {
+          status: "inactive",
+          endDate: new Date(),
+        },
+      }
+    );
+
+    return {
+      residentId: resident._id,
+      status: resident.status,
+    };
+  };

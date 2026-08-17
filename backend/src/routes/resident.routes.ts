@@ -8,9 +8,18 @@ import { authorizeRoles } from "../middlewares/role.middleware.js";
 
 import { validate } from "../middlewares/validate.middleware.js";
 
-import { createResidentController } from "../controllers/resident.controller.js";
+import {
+  createResidentController,
+  deactivateResidentController,
+  updateResidentController,
+  updateResidentMembershipController,
+} from "../controllers/resident.controller.js";
 
-import { createResidentSchema } from "../validations/resident.validation.js";
+import {
+  createResidentSchema,
+  updateResidentMembershipSchema,
+  updateResidentSchema,
+} from "../validations/resident.validation.js";
 import {
   getResidentsController,
   getResidentByIdController,
@@ -63,3 +72,32 @@ router.get(
   getResidentByIdController,
 );
 export default router;
+
+router.patch(
+  "/:residentId",
+  authenticate,
+  requireTenant,
+  authorizeRoles("society_admin"),
+  validate(updateResidentSchema),
+  updateResidentController,
+);
+
+router.patch(
+  "/:residentId/membership",
+  authenticate,
+  requireTenant,
+  authorizeRoles("society_admin"),
+  validate(
+    updateResidentMembershipSchema
+  ),
+  updateResidentMembershipController
+);
+
+router.delete(
+  "/:residentId",
+  authenticate,
+  requireTenant,
+  authorizeRoles("society_admin"),
+  validate(residentIdSchema),
+  deactivateResidentController,
+);
