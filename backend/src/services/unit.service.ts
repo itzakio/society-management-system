@@ -26,7 +26,7 @@ interface UpdateUnitInput {
   area?: number;
   bedrooms?: number;
   bathrooms?: number;
-  status?: "available" | "occupied" | "inactive";
+  status?: UnitStatus;
 }
 
 export const createUnit = async (

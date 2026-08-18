@@ -6,6 +6,7 @@ import societyRoutes from "./routes/society.routes.js";
 import buildingRoutes from "./routes/building.routes.js";
 import unitRoutes from "./routes/unit.routes.js";
 import residentRoutes from "./routes/resident.routes.js";
+import dashboardRoutes from "./routes/dashboard.routes.js";
 
 const app = express();
 
@@ -32,5 +33,6 @@ app.use("/api/societies", societyRoutes);
 app.use("/api/buildings", buildingRoutes);
 app.use("/api/units", unitRoutes);
 app.use("/api/residents", residentRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 export default app;

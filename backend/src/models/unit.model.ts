@@ -2,7 +2,6 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export type UnitStatus =
   | "available"
-  | "occupied"
   | "inactive";
 
 export type UnitType =
@@ -79,13 +78,9 @@ const unitSchema = new Schema<IUnit>(
 
     status: {
       type: String,
-      enum: [
-        "available",
-        "occupied",
-        "inactive",
-      ],
+      enum: ["available", "inactive"],
       default: "available",
-    },
+    }
   },
   {
     timestamps: true,

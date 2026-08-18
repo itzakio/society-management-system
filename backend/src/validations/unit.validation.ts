@@ -10,7 +10,6 @@ const unitTypes = [
 
 const unitStatuses = [
   "available",
-  "occupied",
   "inactive",
 ] as const;
 
